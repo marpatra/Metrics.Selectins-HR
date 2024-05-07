@@ -1,0 +1,27 @@
+import numpy as np
+
+# Sample data
+Diagnosis = ['psoriasis'] * 40 + ['healthy'] * 40
+L_selectin = [
+    1522.6, 1191.5, 728.9, 1047.3, 1685.4, 2322.4, 1003.2, 675.6, 1760.8, 3796.6,
+    3079.5, 1131, 949.1, 1527.2, 2788.3, 1100, 974.9, 1588.2, 1230.3, 722,
+    1684.9, 1444.3, 1203.1, 1025, 1368.2, 955.6, 1177.6, 2528.2, 1393.7, 844.1,
+    1164, 1256.4, 999.1, 2002, 1447.4, 1369.1, 2123.3, 1298.6, 1114, 1400.4,
+    3501, 1193.4, 1176, 1042.1, 1354.1, 1417.1, 2007.2, 1318.9, 1073.6, 1328.4,
+    927.6, 1666.1, 1761.3, 1399.4, 1599.2, 760, 1367.5, 1192.4, 1802.3, 1290.6,
+    858.7, 1660.6, 889, 972.9, 736.8, 951.3, 1544.2, 1441.9, 415.1, 3711.7,
+    1025.5, 1278.8, 1414.5, 1009.2, 1135.1, 1155.9, 1358.9, 1041, 952.8, 4251.5
+]
+
+# Convert categorical variable to numerical
+Diagnosis_numeric = np.where(np.array(Diagnosis) == 'psoriasis', 1, 0)
+
+# Calculate log loss
+y_true = np.array(Diagnosis_numeric)
+y_pred = np.array(L_selectin)
+epsilon = 1e-15  # to prevent log(0) issues
+y_pred = np.maximum(epsilon, y_pred)  # clip to prevent log(0)
+y_pred = np.minimum(1 - epsilon, y_pred)  # clip to prevent log(1)
+log_loss = -np.mean(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
+
+print("Log Loss:", log_loss)
