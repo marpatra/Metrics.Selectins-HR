@@ -1,0 +1,34 @@
+from sklearn.metrics import brier_score_loss
+
+# The dataset
+cardio = [0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0]
+thal = [6, 3, 7, 3, 3, 3, 3, 3, 7, 7, 6, 3, 6, 7, 7, 3, 7, 3, 3, 3, 3, 3, 3, 7, 7, 3, 3, 3, 3, 7, 3, 7, 3, 7, 3, 3, 7, 6, 7, 3, 7, 7, 3, 3, 3, 7, 3, 7, 3, 3, 3, 7, 3, 3, 7, 7, 7, 7, 3, 3, 7, 3, 7, 3, 7, 7, 3, 7, 7, 3, 3, 7, 7, 6, 3, 3, 7, 3, 3, 7, 7, 7, 7, 7, 7, 3, 6, 7, 7, 6, 3, 3, 7, 7, 7, 7, 3, 7, 3, 3, 7, 7, 3, 3, 7, 7, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 3, 3, 7, 3, 7, 7, 3, 7, 3, 3, 3, 3, 3, 7, 3, 7, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 3, 3, 7, 3, 7, 3, 7, 7, 7, 3, 7, 3, 3, 7, 7, 6, 6, 6, 7, 3, 7, 6, 7, 3, 3, 7, 3, 3, 7, 7, 3, 7, 7, 6, 6, 7, 7, 7, 3, 7, 7, 3, 3, 3, 3, 3, 3, 7, 7, 7, 3, 3, 7, 3, 7, 7, 3, 7, 7, 6, 7, 7, 3, 3, 3, 3, 3, 3, 3, 7, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 7, 7, 7, 3, 7, 3, 3, 3, 7, 3, 3, 3, 7, 3, 7, 3, 3, 3, 3, 3, 7, 3, 3, 3, 3, 3, 6, 6, 6, 7, 3, 7, 6, 7, 3, 3, 7, 3, 3, 3, 3, 7, 3, 7, 3, 7, 6, 6, 7, 7, 3]
+
+# Ensure both lists have the same length
+min_length = min(len(cardio), len(thal))
+cardio = cardio[:min_length]
+thal = thal[:min_length]
+
+# Replace '?' with None
+for i in range(len(thal)):
+    if thal[i] == "?":
+        thal[i] = None
+
+# Filter out None values from thal and corresponding cardio values
+cardio_filtered = [cardio[i] for i in range(len(thal)) if thal[i] is not None]
+thal_filtered = [thal[i] for i in range(len(thal)) if thal[i] is not None]
+
+# Define the probability mapping for Thal
+thal_prob = {
+    3: 0.1,
+    6: 0.6,
+    7: 0.9
+}
+
+# Calculate the predicted probabilities for non-None values
+predicted_probabilities = [thal_prob[t] for t in thal_filtered]
+
+# Calculate the Brier Score
+brier_score = brier_score_loss(cardio_filtered, predicted_probabilities)
+
+print(f"Brier Score: {brier_score}")
