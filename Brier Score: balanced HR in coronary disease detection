@@ -2,21 +2,19 @@ from sklearn.metrics import brier_score_loss
 
 # The dataset
 cardio = [0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0]
-thal = [6, 3, 7, 3, 3, 3, 3, 3, 7, 7, 6, 3, 6, 7, 7, 3, 7, 3, 3, 3, 3, 3, 3, 7, 7, 3, 3, 3, 3, 7, 3, 7, 3, 7, 3, 3, 7, 6, 7, 3, 7, 7, 3, 3, 3, 7, 3, 7, 3, 3, 3, 7, 3, 3, 7, 7, 7, 7, 3, 3, 7, 3, 7, 3, 7, 7, 3, 7, 7, 3, 3, 7, 7, 6, 3, 3, 7, 3, 3, 7, 7, 7, 7, 7, 7, 3, 6, 7, 7, 6, 3, 3, 7, 7, 7, 7, 3, 7, 3, 3, 7, 7, 3, 3, 7, 7, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 3, 3, 7, 3, 7, 7, 3, 7, 3, 3, 3, 3, 3, 7, 3, 7, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 3, 3, 7, 3, 7, 3, 7, 7, 7, 3, 7, 3, 3, 7, 7, 6, 6, 6, 7, 3, 7, 6, 7, 3, 3, 7, 3, 3, 7, 7, 3, 7, 7, 6, 6, 7, 7, 7, 3, 7, 7, 3, 3, 3, 3, 3, 3, 7, 7, 7, 3, 3, 7, 3, 7, 7, 3, 7, 7, 6, 7, 7, 3, 3, 3, 3, 3, 3, 3, 7, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 7, 7, 7, 3, 7, 3, 3, 3, 7, 3, 3, 3, 7, 3, 7, 3, 3, 3, 3, 3, 7, 3, 3, 3, 3, 3, 6, 6, 6, 7, 3, 7, 6, 7, 3, 3, 7, 3, 3, 3, 3, 7, 3, 7, 3, 7, 6, 6, 7, 7, 3]
+
+thal = [6, 3, 7, 3, 3, 3, 3, 3, 7, 7, 6, 3, 6, 7, 7, 3, 7, 3, 3, 3, 3, 3, 3, 7, 7, 3, 3, 3, 3, 7, 3, 7, 3, 7, 3, 3, 7, 6, 7, 3, 7, 7, 3, 3, 3, 7, 3, 7, 3, 3, 3, 7, 3, 3, 7, 7, 7, 7, 3, 3, 7, 3, 7, 3, 7, 7, 3, 7, 7, 3, 3, 7, 7, 6, 3, 3, 7, 3, 3, 7, 7, 7, 7, 7, 7, 3, 6, 7, 7, 6, 3, 3, 7, 7, 7, 7, 3, 7, 3, 3, 7, 7, 3, 3, 7, 7, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 3, 3, 7, 3, 7, 7, 3, 7, 3, 3, 3, 3, 3, 7, 3, 7, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 3, 3, 7, 3, 7, 3, 7, 7, 7, 3, 7, 3, 3, 7, 7, 6, 6, 6, 7, 3, 7, 6, 7, 3, 3, 7, 3, 3, 3, 3, 7, 3, 7, 3, 7, 6, 6, 7, 7, 3]
 
 # Ensure both lists have the same length
 min_length = min(len(cardio), len(thal))
 cardio = cardio[:min_length]
 thal = thal[:min_length]
 
-# Replace '?' with None
-for i in range(len(thal)):
-    if thal[i] == "?":
-        thal[i] = None
+# Define a threshold for classifying continuous values into binary classes
+threshold = 5  # You can adjust this threshold based on your specific problem
 
-# Filter out None values from thal and corresponding cardio values
-cardio_filtered = [cardio[i] for i in range(len(thal)) if thal[i] is not None]
-thal_filtered = [thal[i] for i in range(len(thal)) if thal[i] is not None]
+# Convert continuous values into binary classes
+binary_classes = [1 if value >= threshold else 0 for value in thal]
 
 # Define the probability mapping for Thal
 thal_prob = {
@@ -25,10 +23,10 @@ thal_prob = {
     7: 0.9
 }
 
-# Calculate the predicted probabilities for non-None values
-predicted_probabilities = [thal_prob[t] for t in thal_filtered]
+# Calculate the predicted probabilities
+predicted_probabilities = [thal_prob[t] for t in thal]
 
 # Calculate the Brier Score
-brier_score = brier_score_loss(cardio_filtered, predicted_probabilities)
+brier_score = brier_score_loss(binary_classes, predicted_probabilities)
 
 print(f"Brier Score: {brier_score}")
