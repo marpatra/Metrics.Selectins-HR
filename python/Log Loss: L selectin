@@ -1,27 +1,65 @@
 import numpy as np
 
-# Sample data
-Diagnosis = ['psoriasis'] * 40 + ['healthy'] * 40
-L_selectin = [
-    1522.6, 1191.5, 728.9, 1047.3, 1685.4, 2322.4, 1003.2, 675.6, 1760.8, 3796.6,
-    3079.5, 1131, 949.1, 1527.2, 2788.3, 1100, 974.9, 1588.2, 1230.3, 722,
-    1684.9, 1444.3, 1203.1, 1025, 1368.2, 955.6, 1177.6, 2528.2, 1393.7, 844.1,
-    1164, 1256.4, 999.1, 2002, 1447.4, 1369.1, 2123.3, 1298.6, 1114, 1400.4,
-    3501, 1193.4, 1176, 1042.1, 1354.1, 1417.1, 2007.2, 1318.9, 1073.6, 1328.4,
-    927.6, 1666.1, 1761.3, 1399.4, 1599.2, 760, 1367.5, 1192.4, 1802.3, 1290.6,
-    858.7, 1660.6, 889, 972.9, 736.8, 951.3, 1544.2, 1441.9, 415.1, 3711.7,
-    1025.5, 1278.8, 1414.5, 1009.2, 1135.1, 1155.9, 1358.9, 1041, 952.8, 4251.5
+# Sample dataset
+data = [
+    ("psoriasis", 1522.6), ("psoriasis", 1191.5), ("psoriasis", 728.9), ("psoriasis", 1047.3), ("psoriasis", 1685.4),
+    ("psoriasis", 2322.4), ("psoriasis", 1003.2), ("psoriasis", 675.6), ("psoriasis", 1760.8), ("psoriasis", 3796.6),
+    ("psoriasis", 3079.5), ("psoriasis", 1131), ("psoriasis", 949.1), ("psoriasis", 1527.2), ("psoriasis", 2788.3),
+    ("psoriasis", 1100), ("psoriasis", 974.9), ("psoriasis", 1588.2), ("psoriasis", 1230.3), ("psoriasis", 722),
+    ("psoriasis", 1684.9), ("psoriasis", 1444.3), ("psoriasis", 1203.1), ("psoriasis", 1025), ("psoriasis", 1368.2),
+    ("psoriasis", 955.6), ("psoriasis", 1177.6), ("psoriasis", 2528.2), ("psoriasis", 1393.7), ("psoriasis", 844.1),
+    ("psoriasis", 1164), ("psoriasis", 1256.4), ("psoriasis", 999.1), ("psoriasis", 2002), ("psoriasis", 1447.4),
+    ("psoriasis", 1369.1), ("psoriasis", 2123.3), ("psoriasis", 1298.6), ("psoriasis", 1114), ("psoriasis", 1400.4),
+    ("healthy", 3501), ("healthy", 1193.4), ("healthy", 1176), ("healthy", 1042.1), ("healthy", 1354.1),
+    ("healthy", 1417.1),
+    ("healthy", 2007.2), ("healthy", 1318.9), ("healthy", 1073.6), ("healthy", 1328.4), ("healthy", 927.6),
+    ("healthy", 1666.1),
+    ("healthy", 1761.3), ("healthy", 1399.4), ("healthy", 1599.2), ("healthy", 760), ("healthy", 1367.5),
+    ("healthy", 1192.4),
+    ("healthy", 1802.3), ("healthy", 1290.6), ("healthy", 858.7), ("healthy", 1660.6), ("healthy", 889),
+    ("healthy", 972.9),
+    ("healthy", 736.8), ("healthy", 951.3), ("healthy", 1544.2), ("healthy", 1441.9), ("healthy", 415.1),
+    ("healthy", 3711.7),
+    ("healthy", 1025.5), ("healthy", 1278.8), ("healthy", 1414.5), ("healthy", 1009.2), ("healthy", 1135.1),
+    ("healthy", 1155.9),
+    ("healthy", 1358.9), ("healthy", 1041), ("healthy", 952.8), ("healthy", 4251.5)
 ]
 
-# Convert categorical variable to numerical
-Diagnosis_numeric = np.where(np.array(Diagnosis) == 'psoriasis', 1, 0)
+X = np.array([x[1] for x in data]).reshape(-1, 1)
+y = np.array([1 if x[0] == 'psoriasis' else 0 for x in data])
 
-# Calculate log loss
-y_true = np.array(Diagnosis_numeric)
-y_pred = np.array(L_selectin)
-epsilon = 1e-15  # to prevent log(0) issues
-y_pred = np.maximum(epsilon, y_pred)  # clip to prevent log(0)
-y_pred = np.minimum(1 - epsilon, y_pred)  # clip to prevent log(1)
-log_loss = -np.mean(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
 
-print("Log Loss:", log_loss)
+class LogisticRegression:
+    b0 = 0
+    b1 = 0
+    sigmoid = np.array([])
+    loss = np.array([])
+    n = 0
+
+    def fit(self, X, y):
+        X_mean = np.mean(X)
+        y_mean = np.mean(y)
+        self.n = len(X)
+        upward_function = 0
+        downward_function = 0
+        for i in range(self.n):
+            upward_function += (X[i] - X_mean) * (y[i] - y_mean)
+            downward_function += (X[i] - X_mean) ** 2
+        self.b1 = upward_function / downward_function
+        self.b0 = y_mean - (self.b1 * X_mean)
+        return self.b0, self.b1
+
+    def predict(self, Xi):
+        z = self.b0 + (self.b1 * Xi)
+        self.sigmoid = np.append(self.sigmoid, [1 / (1 + np.exp(-z))])
+        return self.sigmoid
+
+    def log_loss(self, y_true):
+        log_loss = -np.mean(y_true * np.log(self.sigmoid) + (1 - y_true) * np.log(1 - self.sigmoid))
+        return log_loss
+
+
+model = LogisticRegression()
+print(model.fit(X, y))
+print(model.predict(X))
+print("Log Loss:", model.log_loss(y))
