@@ -1,3 +1,4 @@
+zle 
 # Sample data
 Diagnosis <- c(rep('psoriasis', 40), rep('healthy', 40))
 L_selectin <- c(
