@@ -1,8 +1,3 @@
-
-# Load necessary library
-install.packages('MLmetrics')
-library(MLmetrics)
-
 # Create the dataset
 data <- data.frame(
   Cardio = c(0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 
