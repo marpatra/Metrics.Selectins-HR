@@ -1,28 +1,21 @@
-# zly kod, wychodzi to samo co z L selectin
-# Sample data
-Diagnosis <- c(
-  rep('psoriasis', 40),
-  rep('healthy', 40)
-)
-P_selectin <- c(
-  143.8, 106.02, 140.8, 128.2, 108.8, 58.1, 104.6, 136.2, 54.42, 62.8,
-  101.94, 148, 116.4, 96.4, 105.44, 95.2, 45.4, 172, 64.76, 61.8,
-  40.4, 70.6, 73, 55.2, 11.2, 102.6, 32, 112.6, 67.2, 111.6, 123.4,
-  207.4, 228, 66.58, 106, 43.06, 99.96, 86.84, 62.82, 102.6,
-  72.2, 90.24, 78.4, 69.48, 48.64, 62.8, 61.32, 92.2, 110.34,
-  91.4, 91.2, 104.8, 68.3, 57.06, 82.5, 63.2, 65.94, 95.2,
-  77.14, 40.4, 100.4, 83.4, 94.2, 104.4, 76.08, 96.6, 71.06,
-  71.1, 112.64, 81, 91.96, 34.84, 56.8, 90, 112.06, 35.6,
-  45.82, 58.4, 77.2, 85.8
+# Create the dataset
+data <- data.frame(
+  Diagnosis = c(rep('psoriasis', 40), rep('healthy', 40)),
+  P_selectin = c(143.8, 106.02, 140.8, 128.2, 108.8, 58.1, 104.6, 136.2, 54.42, 62.8, 101.94, 148, 116.4, 96.4, 105.44, 95.2, 45.4, 172, 64.76, 61.8, 40.4, 70.6, 73, 55.2, 11.2, 102.6, 32, 112.6, 67.2, 111.6, 123.4, 207.4, 228, 66.58, 106, 43.06, 99.96, 86.84, 62.82, 102.6, 72.2, 90.24, 78.4, 69.48, 48.64, 62.8, 61.32, 92.2, 110.34, 91.4, 91.2, 104.8, 68.3, 57.06, 82.5, 63.2, 65.94, 95.2, 77.14, 40.4, 100.4, 83.4, 94.2, 104.4, 76.08, 96.6, 71.06, 71.1, 112.64, 81, 91.96, 34.84, 56.8, 90, 112.06, 35.6, 45.82, 58.4, 77.2, 85.8)
 )
 
-# Convert categorical variable to numerical
-Diagnosis_numeric <- ifelse(Diagnosis == 'psoriasis', 1, 0)
+# Convert Diagnosis to a binary variable
+data$Diagnosis <- ifelse(data$Diagnosis == 'psoriasis', 1, 0)
 
-# Calculate log loss
-y_true <- Diagnosis_numeric
-y_pred <- pmax(1e-15, pmin(P_selectin, 1 - 1e-15))  # Clip values to prevent log(0) or log(1) issues
-log_loss <- -mean(y_true * log(y_pred) + (1 - y_true) * log(1 - y_pred))
+# Fit the logistic regression model
+logreg <- glm(formula = Diagnosis ~ P_selectin, family = binomial(link = "logit"), data = data)
 
-print(paste("Log Loss:", log_loss))
+# Predict probabilities
+predicted_probabilities <- logreg$fitted.values
 
+# Calculate LogLoss
+true_labels <- data$Diagnosis
+log_loss <- LogLoss(y_pred = predicted_probabilities, y_true = true_labels)
+
+# Print the LogLoss
+print(log_loss)
