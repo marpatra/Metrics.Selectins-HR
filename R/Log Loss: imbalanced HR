@@ -1,7 +1,5 @@
 
-# Load necessary library
-install.packages('MLmetrics')
-library(MLmetrics)
+zly kod
 
 # Create the dataset
 data <- data.frame(
