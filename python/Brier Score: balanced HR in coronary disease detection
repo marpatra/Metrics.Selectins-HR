@@ -1,32 +1,62 @@
-from sklearn.metrics import brier_score_loss
+# Import necessary libraries
+import numpy as np
+import pandas as pd
 
 # The dataset
-cardio = [0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0]
+cardio = [0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 
+          0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 
+          1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 
+          1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 
+          1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 
+          1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 
+          0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 
+          0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 
+          1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 
+          0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 
+          1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 
+          0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 
+          1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 
+          0, 1, 0, 0]
 
-thal = [6, 3, 7, 3, 3, 3, 3, 3, 7, 7, 6, 3, 6, 7, 7, 3, 7, 3, 3, 3, 3, 3, 3, 7, 7, 3, 3, 3, 3, 7, 3, 7, 3, 7, 3, 3, 7, 6, 7, 3, 7, 7, 3, 3, 3, 7, 3, 7, 3, 3, 3, 7, 3, 3, 7, 7, 7, 7, 3, 3, 7, 3, 7, 3, 7, 7, 3, 7, 7, 3, 3, 7, 7, 6, 3, 3, 7, 3, 3, 7, 7, 7, 7, 7, 7, 3, 6, 7, 7, 6, 3, 3, 7, 7, 7, 7, 3, 7, 3, 3, 7, 7, 3, 3, 7, 7, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 3, 3, 7, 3, 7, 7, 3, 7, 3, 3, 3, 3, 3, 7, 3, 7, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 3, 3, 7, 3, 7, 3, 7, 7, 7, 3, 7, 3, 3, 7, 7, 6, 6, 6, 7, 3, 7, 6, 7, 3, 3, 7, 3, 3, 3, 3, 7, 3, 7, 3, 7, 6, 6, 7, 7, 3]
+thal = [6, 3, 7, 3, 3, 3, 3, 3, 7, 7, 6, 3, 6, 7, 7, 3, 7, 3, 3, 3, 
+        3, 3, 3, 7, 7, 3, 3, 3, 3, 7, 3, 7, 3, 7, 3, 3, 7, 6, 7, 3, 
+        7, 7, 3, 3, 3, 7, 3, 7, 3, 3, 3, 7, 3, 3, 7, 7, 7, 7, 3, 3, 
+        7, 3, 7, 3, 7, 7, 3, 7, 7, 3, 3, 7, 7, 6, 3, 3, 7, 3, 3, 7, 
+        3, 3, 3, 7, 3, 3, 3, 3, 3, 3, 3, 7, 3, 7, 7, 7, 7, 7, 3, 3, 
+        7, 6, 7, 3, 3, 3, 7, 7, 7, 7, 3, 7, 3, 3, 7, 7, 3, 3, 7, 7, 
+        3, 3, 3, 3, 7, 7, 7, 3, 3, 7, 3, 7, 7, 3, 7, 3, 3, 3, 7, 3, 
+        7, 7, 3, 3, 7, 7, 7, 7, 7, 3, 3, 3, 3, 3, 3, 7, 7, 7, 3, 3, 
+        7, 3, 7, 3, 7, 7, 6, 3, 3, 7, 7, 3, 7, 3, 3, 7, 6, 7, 7, 3, 
+        7, 7, 3, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 3, 3, 7, 3, 7, 7, 3, 
+        7, 3, 3, 3, 7, 7, 7, 3, 3, 3, 3, 3, 3, 3, 3, 7, 3, 3, 3, 3, 
+        3, 6, 6, 6, 7, 3, 7, 6, 7, 3, 3, 7, 3, 3, 3, 3, 3, 7, 3, 7, 
+        3, 7, 3, 7, 6, 6, 7, 7, 3, 7, 3, 7, 3, 7, 7, 6, 7, 7, 7, 7, 
+        7, 3, 3, 3]
 
-# Ensure both lists have the same length
+# Convert '?' to a placeholder value if needed
+thal = [val if val != '?' else np.nan for val in thal]
+
+# Ensure both vectors have the same length
 min_length = min(len(cardio), len(thal))
 cardio = cardio[:min_length]
 thal = thal[:min_length]
+
+# Convert thal to a numeric array
+thal = np.array(thal, dtype=float)
 
 # Define a threshold for classifying continuous values into binary classes
 threshold = 5  # You can adjust this threshold based on your specific problem
 
 # Convert continuous values into binary classes
-binary_classes = [1 if value >= threshold else 0 for value in thal]
+binary_classes = np.where(thal >= threshold, 1, 0)
 
-# Define the probability mapping for Thal
-thal_prob = {
-    3: 0.1,
-    6: 0.6,
-    7: 0.9
-}
+# Define the probability mapping for Cardio
+cardio_prob = {0: 0.4, 1: 0.6}  # Adjusted probabilities
 
 # Calculate the predicted probabilities
-predicted_probabilities = [thal_prob[t] for t in thal]
+predicted_probabilities = np.array([cardio_prob[d] for d in cardio])
 
-# Calculate the Brier Score
-brier_score = brier_score_loss(binary_classes, predicted_probabilities)
+# Calculate the Brier Score manually
+brier_score = np.mean((binary_classes - predicted_probabilities) ** 2)
 
-print(f"Brier Score: {brier_score}")
+print("Brier Score:", brier_score)
