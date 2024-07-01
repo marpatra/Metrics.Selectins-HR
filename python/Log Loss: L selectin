@@ -1,4 +1,6 @@
 import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import log_loss
 
 # Sample dataset
 data = [
@@ -28,38 +30,14 @@ data = [
 X = np.array([x[1] for x in data]).reshape(-1, 1)
 y = np.array([1 if x[0] == 'psoriasis' else 0 for x in data])
 
-
-class LogisticRegression:
-    b0 = 0
-    b1 = 0
-    sigmoid = np.array([])
-    loss = np.array([])
-    n = 0
-
-    def fit(self, X, y):
-        X_mean = np.mean(X)
-        y_mean = np.mean(y)
-        self.n = len(X)
-        upward_function = 0
-        downward_function = 0
-        for i in range(self.n):
-            upward_function += (X[i] - X_mean) * (y[i] - y_mean)
-            downward_function += (X[i] - X_mean) ** 2
-        self.b1 = upward_function / downward_function
-        self.b0 = y_mean - (self.b1 * X_mean)
-        return self.b0, self.b1
-
-    def predict(self, Xi):
-        z = self.b0 + (self.b1 * Xi)
-        self.sigmoid = np.append(self.sigmoid, [1 / (1 + np.exp(-z))])
-        return self.sigmoid
-
-    def log_loss(self, y_true):
-        log_loss = -np.mean(y_true * np.log(self.sigmoid) + (1 - y_true) * np.log(1 - self.sigmoid))
-        return log_loss
-
-
+# Fit logistic regression model
 model = LogisticRegression()
-print(model.fit(X, y))
-print(model.predict(X))
-print("Log Loss:", model.log_loss(y))
+model.fit(X, y)
+
+# Predict probabilities
+predicted_probabilities = model.predict_proba(X)[:, 1]
+
+# Calculate Log Loss
+log_loss_value = log_loss(y, predicted_probabilities)
+
+print("Log Loss:", log_loss_value)
