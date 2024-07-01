@@ -1,5 +1,5 @@
-
 import numpy as np
+from scipy.optimize import minimize
 
 # Corrected dataset
 data = [
@@ -35,40 +35,48 @@ data = [
 X = np.array([x[1] for x in data]).reshape(-1, 1)
 y = np.array([x[0] for x in data])
 
-# Logistic Regression class
-class LogisticRegression:
-    def __init__(self):
+# Logistic Regression class with gradient descent optimization
+class LogisticRegressionGD:
+    def __init__(self, lr=0.01, n_iter=10000):
+        self.lr = lr
+        self.n_iter = n_iter
         self.b0 = 0
         self.b1 = 0
-        self.sigmoid = np.array([])
-        self.loss = np.array([])
-        self.n = 0
+
+    def sigmoid(self, z):
+        return 1 / (1 + np.exp(-z))
 
     def fit(self, X, y):
-        X_mean = np.mean(X)
-        y_mean = np.mean(y)
-        self.n = len(X)
-        upward_function = 0
-        downward_function = 0
-        for i in range(self.n):
-            upward_function += (X[i] - X_mean) * (y[i] - y_mean)
-            downward_function += (X[i] - X_mean) ** 2
-        self.b1 = upward_function / downward_function
-        self.b0 = y_mean - (self.b1 * X_mean)
+        self.b0 = 0
+        self.b1 = 0
+
+        for _ in range(self.n_iter):
+            linear_model = self.b0 + self.b1 * X
+            y_pred = self.sigmoid(linear_model)
+
+            db0 = np.mean(y_pred - y)
+            db1 = np.mean((y_pred - y) * X)
+
+            self.b0 -= self.lr * db0
+            self.b1 -= self.lr * db1
+
         return self.b0, self.b1
 
     def predict(self, X):
-        self.sigmoid = 1 / (1 + np.exp(-(self.b0 + self.b1 * X)))
-        return self.sigmoid
+        linear_model = self.b0 + self.b1 * X
+        return self.sigmoid(linear_model)
 
-    def log_loss(self, y_true):
+    def log_loss(self, y_true, y_pred):
         epsilon = 1e-15
-        self.sigmoid = np.clip(self.sigmoid, epsilon, 1 - epsilon)
-        log_loss = -np.mean(y_true * np.log(self.sigmoid) + (1 - y_true) * np.log(1 - self.sigmoid))
-        return log_loss
+        y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
+        return -np.mean(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
 
-# Instantiate and use the logistic regression model
-model = LogisticRegression()
-print("Coefficients (b0, b1):", model.fit(X, y))
-print("Predicted probabilities:", model.predict(X).flatten())
-print("Log Loss:", model.log_loss(y))
+# Instantiate and use the logistic regression model with gradient descent
+model_gd = LogisticRegressionGD()
+model_gd.fit(X, y)
+y_pred = model_gd.predict(X).flatten()
+log_loss_value = model_gd.log_loss(y, y_pred)
+
+print("Coefficients (b0, b1):", model_gd.b0, model_gd.b1)
+print("Predicted probabilities:", y_pred)
+print("Log Loss:", log_loss_value)
