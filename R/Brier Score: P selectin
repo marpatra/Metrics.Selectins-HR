@@ -1,8 +1,8 @@
-
 # Create the dataset
 diagnosis <- c(
   rep("psoriasis", 36), rep("healthy", 40)
 )
+
 p_selectin <- c(
   143.8, 106.02, 140.8, 128.2, 108.8, 58.1, 104.6, 136.2, 54.42, 62.8,
   101.94, 148, 116.4, 96.4, 105.44, 95.2, 45.4, 172, 64.76, 61.8, 40.4,
@@ -16,24 +16,26 @@ p_selectin <- c(
 
 # Ensure both vectors have the same length
 min_length <- min(length(diagnosis), length(p_selectin))
-diagnosis <- diagnosis[1:min_length]
+diagnosis  <- diagnosis[1:min_length]
 p_selectin <- p_selectin[1:min_length]
 
 # Convert to data frame
 data <- data.frame(
-  Diagnosis = factor(diagnosis, levels = c("healthy", "psoriasis")),
+  Diagnosis  = factor(diagnosis, levels = c("healthy", "psoriasis")),
   P_selectin = p_selectin
 )
 
-# Define the predicted probabilities (example, you need to define based on your model)
-# Here, we are assuming a simple example where probabilities are based on P_selectin values
-data$predicted_prob <- 1 - pnorm(data$P_selectin, mean(data$P_selectin), sd(data$P_selectin))
+# Convert Diagnosis to binary outcome (1 = psoriasis, 0 = healthy)
+data$y <- ifelse(data$Diagnosis == "psoriasis", 1, 0)
 
-# Convert Diagnosis to binary classes (1 for psoriasis, 0 for healthy)
-data$binary_classes <- ifelse(data$Diagnosis == "psoriasis", 1, 0)
+# Fit logistic regression model: y ~ P_selectin
+model <- glm(y ~ P_selectin, data = data, family = binomial)
 
-# Calculate the Brier Score
-brier_score <- mean((data$binary_classes - data$predicted_prob) ^ 2)
+# Predicted probabilities for psoriasis (positive class)
+data$predicted_prob <- predict(model, type = "response")
+
+# Calculate the Brier Score from individual probabilities
+brier_score <- mean((data$y - data$predicted_prob)^2)
 
 # Print the Brier Score
 cat("Brier Score:", brier_score, "\n")
