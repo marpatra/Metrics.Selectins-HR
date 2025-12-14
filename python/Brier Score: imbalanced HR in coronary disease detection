@@ -1,9 +1,11 @@
 import pandas as pd
 import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import brier_score_loss
 
 # Create the dataset
 data = {
-    'Cardio': [0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0,
+    "Cardio": [0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0,
                0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0,
                1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0,
                1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0,
@@ -17,7 +19,7 @@ data = {
                0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0,
                1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0,
                0, 1, 0, 0],
-    'Thal': [6, 3, 7, 3, 3, 3, 3, 3, 7, 7, 6, 3, 6, 7, 7, 3, 7, 3, 3, 3,
+    "Thal": [6, 3, 7, 3, 3, 3, 3, 3, 7, 7, 6, 3, 6, 7, 7, 3, 7, 3, 3, 3,
              3, 3, 3, 7, 7, 3, 3, 3, 3, 7, 3, 7, 3, 7, 3, 3, 7, 6, 7, 3,
              7, 7, 3, 3, 3, 7, 3, 7, 3, 3, 3, 7, 3, 3, 7, 7, 7, 7, 3, 3,
              7, 3, 7, 3, 7, 7, 3, 7, 7, 3, 3, 7, 7, 6, 3, 3, 7, 3, 3, 7,
@@ -35,25 +37,25 @@ data = {
 
 df = pd.DataFrame(data)
 
-# Remove rows with missing values in Thal
+# If there were missing values like '?', handle them (kept for completeness)
 df = df.replace('?', np.nan).dropna()
+df["Thal"] = pd.to_numeric(df["Thal"])
 
-# Convert Thal column to numeric
-df['Thal'] = pd.to_numeric(df['Thal'])
+# Prepare X and y for modelling
+X = df[["Thal"]].values  # 2D array
+y = df["Cardio"].values  # 1D array
 
-# Define a threshold for classifying Thal values into binary classes
-threshold = 5
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import brier_score_loss
 
-# Convert continuous Thal values into binary classes
-binary_classes = (df['Thal'] >= threshold).astype(int)
+# Fit logistic regression: Cardio ~ Thal
+model = LogisticRegression(solver="lbfgs", max_iter=1000)
+model.fit(X, y)
 
-# Define the probability mapping for Cardio
-cardio_prob = {0: 0.4, 1: 0.6}
+# Predicted probabilities for Cardio = 1
+predicted_probabilities = model.predict_proba(X)[:, 1]
 
-# Calculate the predicted probabilities
-predicted_probabilities = df['Cardio'].map(cardio_prob)
-
-# Calculate the Brier Score
-brier_score = np.mean((binary_classes - predicted_probabilities) ** 2)
+# Compute Brier Score
+brier_score = brier_score_loss(y, predicted_probabilities)
 
 print("Brier Score:", brier_score)
