@@ -1,4 +1,4 @@
-# The dataset
+## 1. The data
 diagnosis <- c("psoriasis", "psoriasis", "psoriasis", "psoriasis", "psoriasis", "psoriasis", "psoriasis", "psoriasis", "psoriasis", "psoriasis", 
                "psoriasis", "psoriasis", "psoriasis", "psoriasis", "psoriasis", "psoriasis", "psoriasis", "psoriasis", "psoriasis", "psoriasis", 
                "psoriasis", "psoriasis", "psoriasis", "psoriasis", "psoriasis", "psoriasis", "psoriasis", "psoriasis", "psoriasis", "psoriasis", 
@@ -19,25 +19,24 @@ l_selectin <- c(1522.6, 1191.5, 728.9, 1047.3, 1685.4, 2322.4, 1003.2, 675.6, 17
                 858.7, 1660.6, 889, 972.9, 736.8, 951.3, 1544.2, 1441.9, 415.1, 3711.7, 
                 1025.5, 1278.8, 1414.5, 1009.2, 1135.1, 1155.9, 1358.9, 1041, 952.8, 4251.5)
 
-# Ensure both vectors have the same length
+## 2. Make lengths consistent (80 observations)
 min_length <- min(length(diagnosis), length(l_selectin))
 diagnosis <- diagnosis[1:min_length]
 l_selectin <- l_selectin[1:min_length]
 
-# Define a threshold for classifying continuous values into binary classes
-threshold <- 1500  # You can adjust this threshold based on your specific problem
+## 3. Encode diagnosis as 0/1
+y <- ifelse(diagnosis == "psoriasis", 1, 0)
 
-# Convert continuous values into binary classes
-binary_classes <- ifelse(l_selectin >= threshold, 1, 0)
+## 4. Fit logistic regression: diagnosis ~ l_selectin
+data <- data.frame(y = y, l_selectin = l_selectin)
+model <- glm(y ~ l_selectin, data = data, family = binomial)
 
-# Define the probability mapping for Diagnosis
-diagnosis_prob <- c("psoriasis" = 0.3, "healthy" = 0.7)
+## 5. Get individual predicted probabilities
+p_hat <- predict(model, type = "response")
 
-# Calculate the predicted probabilities
-predicted_probabilities <- sapply(diagnosis, function(d) diagnosis_prob[d])
+## 6. Compute Brier Score
+brier_score <- mean((p_hat - y)^2)
 
-# Calculate the Brier Score manually
-brier_score <- mean((binary_classes - predicted_probabilities)^2)
-
-cat("Brier Score:", brier_score, "\n")
-
+## 7. Print result
+brier_score
+# or: cat("Brier Score:", brier_score, "\n")
