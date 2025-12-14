@@ -2,42 +2,37 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import log_loss
 
-# Sample dataset
+# Data: (diagnosis, L-selectin)
 data = [
     ("psoriasis", 1522.6), ("psoriasis", 1191.5), ("psoriasis", 728.9), ("psoriasis", 1047.3), ("psoriasis", 1685.4),
     ("psoriasis", 2322.4), ("psoriasis", 1003.2), ("psoriasis", 675.6), ("psoriasis", 1760.8), ("psoriasis", 3796.6),
-    ("psoriasis", 3079.5), ("psoriasis", 1131), ("psoriasis", 949.1), ("psoriasis", 1527.2), ("psoriasis", 2788.3),
-    ("psoriasis", 1100), ("psoriasis", 974.9), ("psoriasis", 1588.2), ("psoriasis", 1230.3), ("psoriasis", 722),
-    ("psoriasis", 1684.9), ("psoriasis", 1444.3), ("psoriasis", 1203.1), ("psoriasis", 1025), ("psoriasis", 1368.2),
+    ("psoriasis", 3079.5), ("psoriasis", 1131.0), ("psoriasis", 949.1), ("psoriasis", 1527.2), ("psoriasis", 2788.3),
+    ("psoriasis", 1100.0), ("psoriasis", 974.9), ("psoriasis", 1588.2), ("psoriasis", 1230.3), ("psoriasis", 722.0),
+    ("psoriasis", 1684.9), ("psoriasis", 1444.3), ("psoriasis", 1203.1), ("psoriasis", 1025.0), ("psoriasis", 1368.2),
     ("psoriasis", 955.6), ("psoriasis", 1177.6), ("psoriasis", 2528.2), ("psoriasis", 1393.7), ("psoriasis", 844.1),
-    ("psoriasis", 1164), ("psoriasis", 1256.4), ("psoriasis", 999.1), ("psoriasis", 2002), ("psoriasis", 1447.4),
-    ("psoriasis", 1369.1), ("psoriasis", 2123.3), ("psoriasis", 1298.6), ("psoriasis", 1114), ("psoriasis", 1400.4),
-    ("healthy", 3501), ("healthy", 1193.4), ("healthy", 1176), ("healthy", 1042.1), ("healthy", 1354.1),
-    ("healthy", 1417.1),
-    ("healthy", 2007.2), ("healthy", 1318.9), ("healthy", 1073.6), ("healthy", 1328.4), ("healthy", 927.6),
-    ("healthy", 1666.1),
-    ("healthy", 1761.3), ("healthy", 1399.4), ("healthy", 1599.2), ("healthy", 760), ("healthy", 1367.5),
-    ("healthy", 1192.4),
-    ("healthy", 1802.3), ("healthy", 1290.6), ("healthy", 858.7), ("healthy", 1660.6), ("healthy", 889),
-    ("healthy", 972.9),
-    ("healthy", 736.8), ("healthy", 951.3), ("healthy", 1544.2), ("healthy", 1441.9), ("healthy", 415.1),
-    ("healthy", 3711.7),
+    ("psoriasis", 1164.0), ("psoriasis", 1256.4), ("psoriasis", 999.1), ("psoriasis", 2002.0), ("psoriasis", 1447.4),
+    ("psoriasis", 1369.1), ("psoriasis", 2123.3), ("psoriasis", 1298.6), ("psoriasis", 1114.0), ("psoriasis", 1400.4),
+    ("healthy", 3501.0), ("healthy", 1193.4), ("healthy", 1176.0), ("healthy", 1042.1), ("healthy", 1354.1),
+    ("healthy", 1417.1), ("healthy", 2007.2), ("healthy", 1318.9), ("healthy", 1073.6), ("healthy", 1328.4),
+    ("healthy", 927.6), ("healthy", 1666.1), ("healthy", 1761.3), ("healthy", 1399.4), ("healthy", 1599.2),
+    ("healthy", 760.0), ("healthy", 1367.5), ("healthy", 1192.4), ("healthy", 1802.3), ("healthy", 1290.6),
+    ("healthy", 858.7), ("healthy", 1660.6), ("healthy", 889.0), ("healthy", 972.9), ("healthy", 736.8),
+    ("healthy", 951.3), ("healthy", 1544.2), ("healthy", 1441.9), ("healthy", 415.1), ("healthy", 3711.7),
     ("healthy", 1025.5), ("healthy", 1278.8), ("healthy", 1414.5), ("healthy", 1009.2), ("healthy", 1135.1),
-    ("healthy", 1155.9),
-    ("healthy", 1358.9), ("healthy", 1041), ("healthy", 952.8), ("healthy", 4251.5)
+    ("healthy", 1155.9), ("healthy", 1358.9), ("healthy", 1041.0), ("healthy", 952.8), ("healthy", 4251.5),
 ]
 
-X = np.array([x[1] for x in data]).reshape(-1, 1)
-y = np.array([1 if x[0] == 'psoriasis' else 0 for x in data])
+# Predictor and outcome
+X = np.array([x[1] for x in data]).reshape(-1, 1)           # L-selectin
+y = np.array([1 if x[0] == "psoriasis" else 0 for x in data])  # 1 = psoriasis, 0 = healthy
 
-# Fit logistic regression model
-model = LogisticRegression()
+# Logistic regression
+model = LogisticRegression(solver="lbfgs", max_iter=1000)
 model.fit(X, y)
 
-# Predict probabilities
-predicted_probabilities = model.predict_proba(X)[:, 1]
+# Predicted probabilities for positive class
+p_hat = model.predict_proba(X)[:, 1]
 
-# Calculate Log Loss
-log_loss_value = log_loss(y, predicted_probabilities)
-
-print("Log Loss:", log_loss_value)
+# Log Loss
+logloss_value = log_loss(y, p_hat)
+print("Log Loss:", logloss_value)
