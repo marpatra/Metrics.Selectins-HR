@@ -1,62 +1,59 @@
 # Import necessary libraries
 import numpy as np
-import pandas as pd
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import brier_score_loss
 
 # The dataset
-cardio = [0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 
-          0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 
-          1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 
-          1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 
-          1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 
-          1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0, 
-          0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 
-          0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 
-          1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 
-          0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 
-          1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 
-          0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 
-          1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 
+cardio = [0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0,
+          0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0,
+          1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0,
+          1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0,
+          1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1,
+          1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 0,
+          0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0,
+          0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1,
+          1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0,
+          0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1,
+          1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0,
+          0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0,
+          1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0,
           0, 1, 0, 0]
 
-thal = [6, 3, 7, 3, 3, 3, 3, 3, 7, 7, 6, 3, 6, 7, 7, 3, 7, 3, 3, 3, 
-        3, 3, 3, 7, 7, 3, 3, 3, 3, 7, 3, 7, 3, 7, 3, 3, 7, 6, 7, 3, 
-        7, 7, 3, 3, 3, 7, 3, 7, 3, 3, 3, 7, 3, 3, 7, 7, 7, 7, 3, 3, 
-        7, 3, 7, 3, 7, 7, 3, 7, 7, 3, 3, 7, 7, 6, 3, 3, 7, 3, 3, 7, 
-        3, 3, 3, 7, 3, 3, 3, 3, 3, 3, 3, 7, 3, 7, 7, 7, 7, 7, 3, 3, 
-        7, 6, 7, 3, 3, 3, 7, 7, 7, 7, 3, 7, 3, 3, 7, 7, 3, 3, 7, 7, 
-        3, 3, 3, 3, 7, 7, 7, 3, 3, 7, 3, 7, 7, 3, 7, 3, 3, 3, 7, 3, 
-        7, 7, 3, 3, 7, 7, 7, 7, 7, 3, 3, 3, 3, 3, 3, 7, 7, 7, 3, 3, 
-        7, 3, 7, 3, 7, 7, 6, 3, 3, 7, 7, 3, 7, 3, 3, 7, 6, 7, 7, 3, 
-        7, 7, 3, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 3, 3, 7, 3, 7, 7, 3, 
-        7, 3, 3, 3, 7, 7, 7, 3, 3, 3, 3, 3, 3, 3, 3, 7, 3, 3, 3, 3, 
-        3, 6, 6, 6, 7, 3, 7, 6, 7, 3, 3, 7, 3, 3, 3, 3, 3, 7, 3, 7, 
-        3, 7, 3, 7, 6, 6, 7, 7, 3, 7, 3, 7, 3, 7, 7, 6, 7, 7, 7, 7, 
+thal = [6, 3, 7, 3, 3, 3, 3, 3, 7, 7, 6, 3, 6, 7, 7, 3, 7, 3, 3, 3,
+        3, 3, 3, 7, 7, 3, 3, 3, 3, 7, 3, 7, 3, 7, 3, 3, 7, 6, 7, 3,
+        7, 7, 3, 3, 3, 7, 3, 7, 3, 3, 3, 7, 3, 3, 7, 7, 7, 7, 3, 3,
+        7, 3, 7, 3, 7, 7, 3, 7, 7, 3, 3, 7, 7, 6, 3, 3, 7, 3, 3, 7,
+        3, 3, 3, 7, 3, 3, 3, 3, 3, 3, 3, 7, 3, 7, 7, 7, 7, 7, 3, 3,
+        7, 6, 7, 3, 3, 3, 7, 7, 7, 7, 3, 7, 3, 3, 7, 7, 3, 3, 7, 7,
+        3, 3, 3, 3, 7, 7, 7, 3, 3, 7, 3, 7, 7, 3, 7, 3, 3, 3, 7, 3,
+        7, 7, 3, 3, 7, 7, 7, 7, 7, 3, 3, 3, 3, 3, 3, 7, 7, 7, 3, 3,
+        7, 3, 7, 3, 7, 7, 6, 3, 3, 7, 7, 3, 7, 3, 3, 7, 6, 7, 7, 3,
+        7, 7, 3, 3, 3, 3, 3, 3, 3, 3, 7, 7, 7, 3, 3, 7, 3, 7, 7, 3,
+        7, 3, 3, 3, 7, 7, 7, 3, 3, 3, 3, 3, 3, 3, 3, 7, 3, 3, 3, 3,
+        3, 6, 6, 6, 7, 3, 7, 6, 7, 3, 3, 7, 3, 3, 3, 3, 3, 7, 3, 7,
+        3, 7, 3, 7, 6, 6, 7, 7, 3, 7, 3, 7, 3, 7, 7, 6, 7, 7, 7, 7,
         7, 3, 3, 3]
 
-# Convert '?' to a placeholder value if needed
-thal = [val if val != '?' else np.nan for val in thal]
+# Convert to numpy arrays
+y = np.array(cardio, dtype=int)
+X = np.array(thal, dtype=float).reshape(-1, 1)
 
-# Ensure both vectors have the same length
-min_length = min(len(cardio), len(thal))
-cardio = cardio[:min_length]
-thal = thal[:min_length]
+# (Optional) drop any NaNs if they existed
+mask = ~np.isnan(X).ravel()
+X = X[mask].reshape(-1, 1)
+y = y[mask]
 
-# Convert thal to a numeric array
-thal = np.array(thal, dtype=float)
+# Fit logistic regression: cardio ~ thal
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import brier_score_loss
 
-# Define a threshold for classifying continuous values into binary classes
-threshold = 5  # You can adjust this threshold based on your specific problem
+model = LogisticRegression(solver="lbfgs", max_iter=1000)
+model.fit(X, y)
 
-# Convert continuous values into binary classes
-binary_classes = np.where(thal >= threshold, 1, 0)
+# Predicted probabilities for the positive class (cardio = 1)
+p_hat = model.predict_proba(X)[:, 1]
 
-# Define the probability mapping for Cardio
-cardio_prob = {0: 0.4, 1: 0.6}  # Adjusted probabilities
-
-# Calculate the predicted probabilities
-predicted_probabilities = np.array([cardio_prob[d] for d in cardio])
-
-# Calculate the Brier Score manually
-brier_score = np.mean((binary_classes - predicted_probabilities) ** 2)
+# Compute Brier Score
+brier_score = brier_score_loss(y, p_hat)
 
 print("Brier Score:", brier_score)
